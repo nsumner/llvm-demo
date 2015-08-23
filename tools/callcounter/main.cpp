@@ -147,9 +147,7 @@ compile(Module &m, string outputPath) {
   TargetLibraryInfoImpl tlii(Triple(m.getTargetTriple()));
   pm.add(new TargetLibraryInfoWrapperPass(tlii));
 
-  if (DataLayout const *dl = machine->getDataLayout()) {
-    m.setDataLayout(*dl);
-  }
+  m.setDataLayout(machine->createDataLayout());
 
   { // Bound this scope
     raw_pwrite_stream *os(&out->os());
