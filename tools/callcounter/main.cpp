@@ -15,7 +15,7 @@
 #include "llvm/IRReader/IRReader.h"
 #include "llvm/Linker/Linker.h"
 #include "llvm/MC/SubtargetFeature.h"
-#include "llvm/PassManager.h"
+#include "llvm/IR/LegacyPassManager.h"
 #include "llvm/Pass.h"
 #include "llvm/Support/CommandLine.h"
 #include "llvm/Support/FileUtilities.h"
@@ -49,6 +49,7 @@ using std::unique_ptr;
 using std::vector;
 using llvm::sys::ExecuteAndWait;
 using llvm::sys::findProgramByName;
+using llvm::legacy::PassManager;
 
 
 enum class AnalysisType {
