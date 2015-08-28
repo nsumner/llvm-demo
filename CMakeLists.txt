@@ -9,7 +9,7 @@ set(PACKAGE_STRING "${PACKAGE_NAME} ${PACKAGE_VERSION}")
 set(PACKAGE_BUGREPORT "wsumner@sfu.ca")
 
 set(CMAKE_BUILD_TYPE Debug)
-set(CMAKE_CXX_FLAGS "-std=c++14 -fno-rtti")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -fno-rtti")
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/bin")
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/lib")
@@ -28,15 +28,18 @@ include(AddLLVM)
 
 option(LLVM_ENABLE_CXX1Y  "Enable C++14" ON)
 option(LLVM_INCLUDE_TOOLS "Generate build targets for the LLVM tools." ON)
-#option(LLVM_ENABLE_PLUGINS "Generate build targets for LLVM plugins." ON)
+# The LLVM CMake build system doesn't support this yet.
+# option(LLVM_ENABLE_PLUGINS "Generate build targets for LLVM plugins." ON)
 option(LLVM_BUILD_TOOLS
-  "Build the LLVM tools. If OFF, just generate build targets." ON)
+  "Build the LLVM tools. If OFF, just generate build targets." ON
+)
 
 message("LLVM STATUS:
   Definitions ${LLVM_DEFINITIONS}
   Includes    ${LLVM_INCLUDE_DIRS}
   Libraries   ${LLVM_LIBRARY_DIRS}
-  Targets     ${LLVM_TARGETS_TO_BUILD}")
+  Targets     ${LLVM_TARGETS_TO_BUILD}"
+)
 
 # Now set the LLVM header and library paths:
 include_directories( ${LLVM_INCLUDE_DIRS} )
