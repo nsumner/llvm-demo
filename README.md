@@ -54,3 +54,7 @@ Running the dynamic call printer:
 Running the static call printer:
 
     bin/callcounter -static calls.bc
+
+or by loading the pass as a plugin for `opt`:
+
+    opt -analyze -load lib/libcallcounter-lib.so -callcounter calls.bc

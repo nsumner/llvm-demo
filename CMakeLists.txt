@@ -28,8 +28,6 @@ include(AddLLVM)
 
 option(LLVM_ENABLE_CXX1Y  "Enable C++14" ON)
 option(LLVM_INCLUDE_TOOLS "Generate build targets for the LLVM tools." ON)
-# The LLVM CMake build system doesn't support this yet.
-# option(LLVM_ENABLE_PLUGINS "Generate build targets for LLVM plugins." ON)
 option(LLVM_BUILD_TOOLS
   "Build the LLVM tools. If OFF, just generate build targets." ON
 )
@@ -42,15 +40,15 @@ message("LLVM STATUS:
 )
 
 # Now set the LLVM header and library paths:
-include_directories( ${LLVM_INCLUDE_DIRS} )
-link_directories( ${LLVM_LIBRARY_DIRS} )
-add_definitions( ${LLVM_DEFINITIONS} )
+include_directories(${LLVM_INCLUDE_DIRS})
+link_directories(${LLVM_LIBRARY_DIRS})
+add_definitions(${LLVM_DEFINITIONS})
 
 ############## FINAL PROJECT CONFIG #################
 
 # And the project header and library paths
 include_directories(${CMAKE_SOURCE_DIR}/include)
-link_directories( ${LIBRARY_OUTPUT_PATH} )
+link_directories(${LIBRARY_OUTPUT_PATH})
 set(CMAKE_TEMP_LIBRARY_PATH "${PROJECT_BINARY_DIR}/lib")
 # TODO: Add install path to the list....
 
