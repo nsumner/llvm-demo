@@ -12,31 +12,31 @@ directory within the package.
 
 Building with CMake
 ==============================================
+1. Clone the demo repository.
 
-1. Create a new directory for building.
+        git clone https://github.com/nsumner/llvm-demo.git
 
-        mkdir ../callcounterbuild
+2. Create a new directory for building.
 
-2. Change into the new directory.
+        mkdir demobuild
 
-        cd ../callcounterbuild
+3. Change into the new directory.
 
-3. Run CMake with the path to the LLVM source. For LLVM 3.7
-  and later, LLVM can be built with configure even if the demo is built
-  with CMake.
+        cd demobuild
+
+4. Run CMake with the path to the LLVM source.
 
         cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=True \
-            -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ \
-            -DLLVM_DIR=</path/to/LLVM/build>/share/llvm/cmake/ ../demo
+            -DLLVM_DIR=</path/to/LLVM/build>/share/llvm/cmake/ ../llvm-demo
 
-4. Run make inside the build directory:
+5. Run make inside the build directory:
 
         make
 
 This produces a callcounter tool called bin/callcounter and supporting
 libraries in lib/.
 
-Note, building with a tool like ninja can be done by adding '-G Ninja' to
+Note, building with a tool like ninja can be done by adding `-G Ninja` to
 the cmake invocation and running ninja instead of make.
 
 Running
