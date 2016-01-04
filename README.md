@@ -44,7 +44,7 @@ Running
 
 First suppose that you have a program compiled to bitcode:
 
-    clang -g -c -emit-llvm ../demo/test/simpletest.c -o calls.bc
+    clang -g -c -emit-llvm ../llvm-demo/test/simpletest.c -o calls.bc
 
 Running the dynamic call printer:
 
