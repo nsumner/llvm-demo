@@ -138,7 +138,7 @@ DynamicCallCounter::runOnModule(Module &m) {
 
 void
 DynamicCallCounter::handleCalledFunction(Function &f, Value *counter) {
-  IRBuilder<> builder(f.getEntryBlock().getFirstInsertionPt());
+  IRBuilder<> builder(&*f.getEntryBlock().getFirstInsertionPt());
   builder.CreateCall(counter, builder.getInt64(ids[&f]));
 }
 
