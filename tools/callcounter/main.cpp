@@ -127,7 +127,7 @@ compile(Module &m, string outputPath) {
   unique_ptr<TargetMachine>
     machine(target->createTargetMachine(triple.getTriple(),
                                         MCPU, FeaturesStr, options,
-                                        RelocModel, CMModel, level));
+                                        getRelocModel(), CMModel, level));
   assert(machine.get() && "Could not allocate target machine!");
 
   if (FloatABIForCalls != FloatABI::Default) {
@@ -279,7 +279,7 @@ instrumentForDynamicCount(Module &m) {
   }
 
   // Build up all of the passes that we want to run on the module.
-  PassManager pm;
+  legacy::PassManager pm;
   pm.add(new callcounter::DynamicCallCounter());
   pm.add(createVerifierPass());
   pm.run(m);
@@ -317,7 +317,7 @@ char StaticCountPrinter::ID = 0;
 static void
 countStaticCalls(Module &m) {
   // Build up all of the passes that we want to run on the module.
-  PassManager pm;
+  legacy::PassManager pm;
   pm.add(new callcounter::StaticCallCounter());
   pm.add(new StaticCountPrinter(outs()));
   pm.run(m);
@@ -329,14 +329,14 @@ main (int argc, char **argv) {
   // This boilerplate provides convenient stack traces and clean LLVM exit
   // handling. It also initializes the built in support for convenient
   // command line option handling.
-  sys::PrintStackTraceOnErrorSignal();
+  sys::PrintStackTraceOnErrorSignal(argv[0]);
   llvm::PrettyStackTraceProgram X(argc, argv);
   llvm_shutdown_obj shutdown;
   cl::ParseCommandLineOptions(argc, argv);
 
   // Construct an IR file from the filename passed on the command line.
   SMDiagnostic err;
-  LLVMContext &context = getGlobalContext();
+  LLVMContext context;
   unique_ptr<Module> module = parseIRFile(inPath.getValue(), err, context);
 
   if (!module.get()) {

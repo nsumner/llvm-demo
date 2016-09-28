@@ -27,7 +27,7 @@ Building with CMake
 4. Run CMake with the path to the LLVM source.
 
         cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=True \
-            -DLLVM_DIR=</path/to/LLVM/build>/share/llvm/cmake/ ../llvm-demo
+            -DLLVM_DIR=</path/to/LLVM/build>/lib/cmake/llvm/ ../llvm-demo
 
 5. Run make inside the build directory:
 
