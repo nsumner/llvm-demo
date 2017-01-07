@@ -16,25 +16,21 @@ namespace callcounter {
 
 
 struct DynamicCallCounter : public llvm::ModulePass {
-
   static char ID;
 
   llvm::DenseMap<llvm::Function*, uint64_t> ids;
   llvm::DenseSet<llvm::Function*> internal;
 
-  DynamicCallCounter()
-    : llvm::ModulePass(ID)
-      { }
+  DynamicCallCounter() : llvm::ModulePass(ID) {}
 
-  virtual bool runOnModule(llvm::Module &m) override;
+  bool runOnModule(llvm::Module& m) override;
 
-  void handleCalledFunction(llvm::Function &f, llvm::Value *counter);
-  void handleInstruction(llvm::CallSite cs, llvm::Value *counter);
+  void handleCalledFunction(llvm::Function& f, llvm::Value* counter);
+  void handleInstruction(llvm::CallSite cs, llvm::Value* counter);
 };
 
 
-}
+}  // namespace callcounter
 
 
 #endif
-
