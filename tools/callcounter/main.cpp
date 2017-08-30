@@ -3,7 +3,33 @@
 #include "llvm/ADT/SmallString.h"
 #include "llvm/Analysis/TargetLibraryInfo.h"
 #include "llvm/AsmParser/Parser.h"
+
+//Support for LLVM 4.0+
+#define LLVM_VERSION_GE(major, minor) \
+      (LLVM_VERSION_MAJOR > (major) || LLVM_VERSION_MAJOR == (major) && LLVM_VERSION_MINOR >= (minor))
+
+#define LLVM_VERSION_EQ(major, minor) \
+      (LLVM_VERSION_MAJOR == (major) && LLVM_VERSION_MINOR == (minor))
+
+#define LLVM_VERSION_LE(major, minor) \
+      (LLVM_VERSION_MAJOR < (major) || LLVM_VERSION_MAJOR == (major) && LLVM_VERSION_MINOR <= (minor))
+
+#if LLVM_VERSION_GE(3, 7)
+#include "llvm/IR/LegacyPassManager.h"
+#else
+#include "llvm/PassManager.h"
+#endif
+
+#if LLVM_VERSION_GE(4, 0)
+#include "llvm/Bitcode/BitcodeReader.h"
+#include "llvm/Bitcode/BitcodeWriter.h"
+#else
 #include "llvm/Bitcode/ReaderWriter.h"
+#endif
+
+
+
+//#include "llvm/Bitcode/ReaderWriter.h"
 #include "llvm/CodeGen/CommandFlags.h"
 #include "llvm/CodeGen/LinkAllAsmWriterComponents.h"
 #include "llvm/CodeGen/LinkAllCodegenComponents.h"
@@ -15,7 +41,6 @@
 #include "llvm/IRReader/IRReader.h"
 #include "llvm/Linker/Linker.h"
 #include "llvm/MC/SubtargetFeature.h"
-#include "llvm/IR/LegacyPassManager.h"
 #include "llvm/Pass.h"
 #include "llvm/Support/CommandLine.h"
 #include "llvm/Support/FileUtilities.h"
@@ -70,8 +95,7 @@ cl::opt<AnalysisType>
 analysisType(cl::desc("Select analyis type:"),
   cl::values(
     clEnumValN(AnalysisType::STATIC,  "static",  "Count static direct calls."),
-    clEnumValN(AnalysisType::DYNAMIC, "dynamic", "Count dynamic direct calls."),
-  clEnumValEnd), cl::Required);
+    clEnumValN(AnalysisType::DYNAMIC, "dynamic", "Count dynamic direct calls.")), cl::Required);
 
 cl::opt<string>
 outFile("o",
