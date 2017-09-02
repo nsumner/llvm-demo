@@ -3,7 +3,7 @@
 #include "llvm/ADT/SmallString.h"
 #include "llvm/Analysis/TargetLibraryInfo.h"
 #include "llvm/AsmParser/Parser.h"
-#include "llvm/Bitcode/ReaderWriter.h"
+#include "llvm/Bitcode/BitcodeWriter.h"
 #include "llvm/CodeGen/CommandFlags.h"
 #include "llvm/CodeGen/LinkAllAsmWriterComponents.h"
 #include "llvm/CodeGen/LinkAllCodegenComponents.h"
@@ -74,8 +74,8 @@ static cl::opt<AnalysisType> analysisType{
                           "Count static direct calls."),
                clEnumValN(AnalysisType::DYNAMIC,
                           "dynamic",
-                          "Count dynamic direct calls."),
-               clEnumValEnd),
+                          "Count dynamic direct calls.")
+               ),
     cl::Required,
     cl::cat{callCounterCategory}};
 
