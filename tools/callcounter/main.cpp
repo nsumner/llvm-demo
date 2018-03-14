@@ -4,7 +4,7 @@
 #include "llvm/Analysis/TargetLibraryInfo.h"
 #include "llvm/AsmParser/Parser.h"
 #include "llvm/Bitcode/BitcodeWriter.h"
-#include "llvm/CodeGen/CommandFlags.h"
+#include "llvm/CodeGen/CommandFlags.def"
 #include "llvm/CodeGen/LinkAllAsmWriterComponents.h"
 #include "llvm/CodeGen/LinkAllCodegenComponents.h"
 #include "llvm/IR/DataLayout.h"
@@ -32,7 +32,6 @@
 #include "llvm/Support/ToolOutputFile.h"
 #include "llvm/Support/raw_ostream.h"
 #include "llvm/Target/TargetMachine.h"
-#include "llvm/Target/TargetSubtargetInfo.h"
 #include "llvm/Transforms/Scalar.h"
 
 #include <memory>
@@ -135,7 +134,7 @@ compile(Module& m, StringRef outputPath) {
                                   FeaturesStr,
                                   options,
                                   getRelocModel(),
-                                  CMModel,
+                                  CMModel.getValue(),
                                   level));
   assert(machine.get() && "Could not allocate target machine!");
 
@@ -145,7 +144,7 @@ compile(Module& m, StringRef outputPath) {
 
   std::error_code errc;
   auto out =
-      std::make_unique<tool_output_file>(outputPath, errc, sys::fs::F_None);
+      std::make_unique<ToolOutputFile>(outputPath, errc, sys::fs::F_None);
   if (!out) {
     report_fatal_error("Unable to create file:\n " + errc.message());
   }
@@ -218,7 +217,7 @@ link(StringRef objectFile, StringRef outputFile) {
 
   string err;
   if (-1 == ExecuteAndWait(
-                clang.get(), &charArgs[0], nullptr, nullptr, 0, 0, &err)) {
+                clang.get(), &charArgs[0], nullptr, {}, 0, 0, &err)) {
     report_fatal_error("Unable to link output file.");
   }
 }
