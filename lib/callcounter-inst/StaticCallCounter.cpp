@@ -65,7 +65,7 @@ StaticCallCounter::handleInstruction(CallSite cs) {
 // It is called automatically after the analysis pass has finished collecting
 // its information.
 void
-StaticCallCounter::print(raw_ostream& out, Module const* m) const {
+StaticCallCounter::print(raw_ostream& out, Module const* /*m*/) const {
   out << "Function Counts\n"
       << "===============\n";
   for (auto& kvPair : counts) {

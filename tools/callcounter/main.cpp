@@ -136,7 +136,7 @@ compile(Module& m, StringRef outputPath) {
                                   getRelocModel(),
                                   CMModel.getValue(),
                                   level));
-  assert(machine.get() && "Could not allocate target machine!");
+  assert(machine && "Could not allocate target machine!");
 
   if (FloatABIForCalls != FloatABI::Default) {
     options.FloatABIType = FloatABIForCalls;
@@ -205,6 +205,7 @@ link(StringRef objectFile, StringRef outputFile) {
   }
 
   vector<char const*> charArgs;
+  charArgs.reserve(args.size() + 1);
   for (auto& arg : args) {
     charArgs.push_back(arg.c_str());
   }
@@ -281,7 +282,7 @@ instrumentForDynamicCount(Module& m) {
   InitializeAllAsmParsers();
   cl::AddExtraVersionPrinter(TargetRegistry::printRegisteredTargetsForVersion);
 
-  if (outFile.getValue() == "") {
+  if (outFile.getValue().empty()) {
     errs() << "-o command line option must be specified.\n";
     exit(-1);
   }
