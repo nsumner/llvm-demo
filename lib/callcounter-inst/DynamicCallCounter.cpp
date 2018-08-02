@@ -128,7 +128,7 @@ DynamicCallCounter::runOnModule(Module& m) {
   // Install the result printing function so that it prints out the counts after
   // the entire program is finished executing.
   auto* voidTy  = Type::getVoidTy(context);
-  auto* printer = m.getOrInsertFunction("CaLlCoUnTeR_print", voidTy, nullptr);
+  auto* printer = m.getOrInsertFunction("CaLlCoUnTeR_print", voidTy);
   appendToGlobalDtors(m, llvm::cast<Function>(printer), 0);
 
   // Declare the counter function
