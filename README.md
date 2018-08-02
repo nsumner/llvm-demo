@@ -6,10 +6,6 @@ The provided analyses count the number of direct invocations of a particular
 function are present within a program or within and execution depending on
 whether static or dynamic analysis is used.
 
-These instructions assume that your current directory starts out as the "demo"
-directory within the package.
-
-
 Building with CMake
 ==============================================
 1. Clone the demo repository.

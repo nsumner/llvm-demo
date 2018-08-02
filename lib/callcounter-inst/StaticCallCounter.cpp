@@ -6,7 +6,7 @@
 #include "StaticCallCounter.h"
 
 // This program can be used by opt. After compilation, use:
-// opt -load buildpath/lib/callcounter-inst.so --callcounter -analyze bitcodefile.bc
+// opt -load buildpath/lib/callcounter-inst.so --callcounter -analyze bitcode.bc
 
 
 using namespace llvm;
@@ -26,10 +26,10 @@ RegisterPass<StaticCallCounter> X("callcounter",
 // For an analysis pass, runOnModule should perform the actual analysis and
 // compute the results. The actual output, however, is produced separately.
 bool
-StaticCallCounter::runOnModule(Module &m) {
-  for (auto &f : m) {
-    for (auto &bb : f) {
-      for (auto &i : bb) {
+StaticCallCounter::runOnModule(Module& m) {
+  for (auto& f : m) {
+    for (auto& bb : f) {
+      for (auto& i : bb) {
         handleInstruction(CallSite(&i));
       }
     }
@@ -65,13 +65,12 @@ StaticCallCounter::handleInstruction(CallSite cs) {
 // It is called automatically after the analysis pass has finished collecting
 // its information.
 void
-StaticCallCounter::print(raw_ostream &out, Module const *m) const {
+StaticCallCounter::print(raw_ostream& out, Module const* /*m*/) const {
   out << "Function Counts\n"
       << "===============\n";
-  for (auto &kvPair : counts) {
-    auto *function = kvPair.first;
+  for (auto& kvPair : counts) {
+    auto* function = kvPair.first;
     uint64_t count = kvPair.second;
     out << function->getName() << " : " << count << "\n";
   }
 }
-
