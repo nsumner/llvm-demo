@@ -16,7 +16,12 @@ endif()
 
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -std=c++14 -fno-rtti -Wall")
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -std=c++14 -fno-rtti -Wall \
-        -fno-omit-frame-pointer")
+        -fno-omit-frame-pointer -fvisibility=hidden")
+
+# Force apple linker to behave like linux
+if(APPLE)
+    set(CMAKE_MODULE_LINKER_FLAGS "-undefined dynamic_lookup")
+endif()
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/bin")
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/lib")
