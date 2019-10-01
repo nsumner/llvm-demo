@@ -4,7 +4,7 @@
 #include "llvm/Analysis/TargetLibraryInfo.h"
 #include "llvm/AsmParser/Parser.h"
 #include "llvm/Bitcode/BitcodeWriter.h"
-#include "llvm/CodeGen/CommandFlags.def"
+#include "llvm/CodeGen/CommandFlags.inc"
 #include "llvm/CodeGen/LinkAllAsmWriterComponents.h"
 #include "llvm/CodeGen/LinkAllCodegenComponents.h"
 #include "llvm/IR/DataLayout.h"
@@ -169,7 +169,7 @@ compile(Module& m, StringRef outputPath) {
     }
 
     // Ask the target to add backend passes as necessary.
-    if (machine->addPassesToEmitFile(pm, *os, FileType)) {
+    if (machine->addPassesToEmitFile(pm, *os, nullptr, FileType)) {
       report_fatal_error("target does not support generation "
                          "of this file type!\n");
     }
@@ -204,12 +204,11 @@ link(StringRef objectFile, StringRef outputFile) {
     args.push_back("-l" + library);
   }
 
-  vector<char const*> charArgs;
-  charArgs.reserve(args.size() + 1);
+  vector<llvm::StringRef> charArgs;
+  charArgs.reserve(args.size());
   for (auto& arg : args) {
-    charArgs.push_back(arg.c_str());
+    charArgs.emplace_back(arg);
   }
-  charArgs.push_back(nullptr);
 
   for (auto& arg : args) {
     outs() << arg.c_str() << " ";
@@ -217,8 +216,16 @@ link(StringRef objectFile, StringRef outputFile) {
   outs() << "\n";
 
   string err;
-  if (-1 == ExecuteAndWait(
-                clang.get(), &charArgs[0], nullptr, {}, 0, 0, &err)) {
+  auto result = ExecuteAndWait(
+      clang.get(),
+      llvm::makeArrayRef(charArgs),
+      llvm::NoneType::None,
+      {},
+      0,
+      0,
+      &err
+    );
+  if (-1 == result) {
     report_fatal_error("Unable to link output file.");
   }
 }
@@ -244,7 +251,7 @@ saveModule(Module const& m, StringRef filename) {
     report_fatal_error("error saving llvm module to '" + filename + "': \n"
                        + errc.message());
   }
-  WriteBitcodeToFile(&m, out);
+  WriteBitcodeToFile(m, out);
 }
 
 
