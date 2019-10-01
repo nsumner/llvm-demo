@@ -127,13 +127,13 @@ DynamicCallCounter::runOnModule(Module& m) {
 
   // Install the result printing function so that it prints out the counts after
   // the entire program is finished executing.
-  auto* voidTy  = Type::getVoidTy(context);
-  auto* printer = m.getOrInsertFunction("CaLlCoUnTeR_print", voidTy);
-  appendToGlobalDtors(m, llvm::cast<Function>(printer), 0);
+  auto* voidTy = Type::getVoidTy(context);
+  auto printer = m.getOrInsertFunction("CaLlCoUnTeR_print", voidTy);
+  appendToGlobalDtors(m, llvm::cast<Function>(printer.getCallee()), 0);
 
   // Declare the counter function
   auto* helperTy = FunctionType::get(voidTy, int64Ty, false);
-  auto* counter  = m.getOrInsertFunction("CaLlCoUnTeR_called", helperTy);
+  auto counter   = m.getOrInsertFunction("CaLlCoUnTeR_called", helperTy);
 
   for (auto f : toCount) {
     // We only want to instrument internally defined functions.
@@ -142,12 +142,12 @@ DynamicCallCounter::runOnModule(Module& m) {
     }
 
     // Count each internal function as it executes.
-    handleCalledFunction(*f, counter);
+    handleCalledFunction(*f, counter.getCallee());
 
     // Count each external function as it is called.
     for (auto& bb : *f) {
       for (auto& i : bb) {
-        handleInstruction(CallSite(&i), counter);
+        handleInstruction(CallSite(&i), counter.getCallee());
       }
     }
   }
