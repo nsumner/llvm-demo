@@ -134,7 +134,7 @@ compile(Module& m, StringRef outputPath) {
                                   FeaturesStr,
                                   options,
                                   getRelocModel(),
-                                  CMModel.getValue(),
+                                  llvm::NoneType::None,
                                   level));
   assert(machine && "Could not allocate target machine!");
 
