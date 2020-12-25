@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.6)
+cmake_minimum_required(VERSION 3.12)
 project(callcounter)
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}")
@@ -14,9 +14,10 @@ if (NOT CMAKE_BUILD_TYPE)
       STRING "Build type (default Debug):" FORCE)
 endif()
 
-set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -std=c++14 -fno-rtti -Wall")
-set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -std=c++14 -fno-rtti -Wall \
-        -fno-omit-frame-pointer")
+add_compile_options(
+  "$<$<AND:$<CXX_COMPILER_ID:GNU,Clang,AppleClang>,$<CONFIG:DEBUG>>:-fno-rtti;-Wall;-fno-omit-frame-pointer>"
+  "$<$<AND:$<CXX_COMPILER_ID:GNU,Clang,AppleClang>,$<CONFIG:RELEASE>>:-fno-rtti;-Wall>"
+)
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/bin")
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/lib")
@@ -33,12 +34,6 @@ message(STATUS "Using LLVMConfig.cmake in: ${LLVM_DIR}")
 list(APPEND CMAKE_MODULE_PATH "${LLVM_CMAKE_DIR}")
 include(AddLLVM)
 
-option(LLVM_ENABLE_CXX1Y  "Enable C++14" ON)
-option(LLVM_INCLUDE_TOOLS "Generate build targets for the LLVM tools." ON)
-option(LLVM_BUILD_TOOLS
-  "Build the LLVM tools. If OFF, just generate build targets." ON
-)
-
 message("LLVM STATUS:
   Definitions ${LLVM_DEFINITIONS}
   Includes    ${LLVM_INCLUDE_DIRS}
@@ -53,11 +48,7 @@ add_definitions(${LLVM_DEFINITIONS})
 
 ############## FINAL PROJECT CONFIG #################
 
-# And the project header and library paths
-include_directories(${CMAKE_SOURCE_DIR}/include)
-link_directories(${LIBRARY_OUTPUT_PATH})
 set(CMAKE_TEMP_LIBRARY_PATH "${PROJECT_BINARY_DIR}/lib")
-# TODO: Add install path to the list....
 
 add_subdirectory(lib)
 add_subdirectory(tools)
