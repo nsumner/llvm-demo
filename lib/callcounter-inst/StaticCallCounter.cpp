@@ -30,7 +30,9 @@ StaticCallCounter::runOnModule(Module& m) {
   for (auto& f : m) {
     for (auto& bb : f) {
       for (auto& i : bb) {
-        handleInstruction(CallSite(&i));
+	if (CallBase *cb = dyn_cast<CallBase>(&i)) {
+          handleInstruction(*cb);
+	}
       }
     }
   }
@@ -40,14 +42,9 @@ StaticCallCounter::runOnModule(Module& m) {
 
 
 void
-StaticCallCounter::handleInstruction(CallSite cs) {
-  // Check whether the instruction is actually a call
-  if (!cs.getInstruction()) {
-    return;
-  }
-
+StaticCallCounter::handleInstruction(CallBase& cb) {
   // Check whether the called function is directly invoked
-  auto called = dyn_cast<Function>(cs.getCalledValue()->stripPointerCasts());
+  auto called = dyn_cast<Function>(cb.getCalledOperand()->stripPointerCasts());
   if (!called) {
     return;
   }

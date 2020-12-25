@@ -5,7 +5,7 @@
 
 
 #include "llvm/ADT/DenseMap.h"
-#include "llvm/IR/CallSite.h"
+#include "llvm/IR/InstrTypes.h"
 #include "llvm/IR/Module.h"
 #include "llvm/Pass.h"
 #include "llvm/Support/raw_ostream.h"
@@ -25,7 +25,7 @@ struct StaticCallCounter : public llvm::ModulePass {
 
   void print(llvm::raw_ostream& out, llvm::Module const* m) const override;
 
-  void handleInstruction(llvm::CallSite cs);
+  void handleInstruction(llvm::CallBase& cb);
 };
 
 

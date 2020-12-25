@@ -6,7 +6,7 @@
 
 #include "llvm/ADT/DenseMap.h"
 #include "llvm/ADT/DenseSet.h"
-#include "llvm/IR/CallSite.h"
+#include "llvm/IR/InstrTypes.h"
 #include "llvm/IR/Module.h"
 #include "llvm/Pass.h"
 #include "llvm/Support/raw_ostream.h"
@@ -25,8 +25,8 @@ struct DynamicCallCounter : public llvm::ModulePass {
 
   bool runOnModule(llvm::Module& m) override;
 
-  void handleCalledFunction(llvm::Function& f, llvm::Value* counter);
-  void handleInstruction(llvm::CallSite cs, llvm::Value* counter);
+  void handleCalledFunction(llvm::Function& f, llvm::FunctionCallee counter);
+  void handleInstruction(llvm::CallBase& cb, llvm::FunctionCallee counter);
 };
 
 

@@ -4,7 +4,7 @@
 #include "llvm/Analysis/TargetLibraryInfo.h"
 #include "llvm/AsmParser/Parser.h"
 #include "llvm/Bitcode/BitcodeWriter.h"
-#include "llvm/CodeGen/CommandFlags.inc"
+#include "llvm/CodeGen/CommandFlags.h"
 #include "llvm/CodeGen/LinkAllAsmWriterComponents.h"
 #include "llvm/CodeGen/LinkAllCodegenComponents.h"
 #include "llvm/IR/DataLayout.h"
@@ -104,13 +104,16 @@ static cl::list<string> libraries{"l",
                                   cl::value_desc{"library prefix"},
                                   cl::cat{callCounterCategory}};
 
+// Make sure that compilation options are enabled when the program loads.
+static codegen::RegisterCodeGenFlags cfg;
+
 
 static void
 compile(Module& m, StringRef outputPath) {
   string err;
 
   Triple triple        = Triple(m.getTargetTriple());
-  Target const* target = TargetRegistry::lookupTarget(MArch, triple, err);
+  Target const* target = TargetRegistry::lookupTarget(codegen::getMArch(), triple, err);
   if (!target) {
     report_fatal_error("Unable to find target:\n " + err);
   }
@@ -127,19 +130,19 @@ compile(Module& m, StringRef outputPath) {
   }
 
   string FeaturesStr;
-  TargetOptions options = InitTargetOptionsFromCodeGenFlags();
+  TargetOptions options = llvm::codegen::InitTargetOptionsFromCodeGenFlags();
   unique_ptr<TargetMachine> machine(
       target->createTargetMachine(triple.getTriple(),
-                                  MCPU,
-                                  FeaturesStr,
+                                  codegen::getCPUStr(),
+                                  codegen::getFeaturesStr(),
                                   options,
-                                  getRelocModel(),
+                                  llvm::codegen::getRelocModel(),
                                   llvm::NoneType::None,
                                   level));
   assert(machine && "Could not allocate target machine!");
 
-  if (FloatABIForCalls != FloatABI::Default) {
-    options.FloatABIType = FloatABIForCalls;
+  if (llvm::codegen::getFloatABIForCalls() != FloatABI::Default) {
+    options.FloatABIType = llvm::codegen::getFloatABIForCalls();
   }
 
   std::error_code errc;
@@ -161,7 +164,6 @@ compile(Module& m, StringRef outputPath) {
   {  // Bound this scope
     raw_pwrite_stream* os(&out->os());
 
-    FileType = TargetMachine::CGFT_ObjectFile;
     std::unique_ptr<buffer_ostream> bos;
     if (!out->os().supportsSeeking()) {
       bos = std::make_unique<buffer_ostream>(*os);
@@ -169,7 +171,7 @@ compile(Module& m, StringRef outputPath) {
     }
 
     // Ask the target to add backend passes as necessary.
-    if (machine->addPassesToEmitFile(pm, *os, nullptr, FileType)) {
+    if (machine->addPassesToEmitFile(pm, *os, nullptr, CGFT_ObjectFile)) {
       report_fatal_error("target does not support generation "
                          "of this file type!\n");
     }
@@ -194,7 +196,7 @@ link(StringRef objectFile, StringRef outputFile) {
   if (!clang) {
     report_fatal_error("Unable to find clang.");
   }
-  vector<string> args{clang.get(), opt, "-o", outputFile, objectFile};
+  vector<string> args{clang.get(), opt, "-o", outputFile.str(), objectFile.str()};
 
   for (auto& libPath : libPaths) {
     args.push_back("-L" + libPath);
@@ -261,7 +263,7 @@ prepareLinkingPaths(SmallString<32> invocationPath) {
   // all bundled together.
   sys::path::remove_filename(invocationPath);
   if (!invocationPath.empty()) {
-    libPaths.push_back(invocationPath.str());
+    libPaths.push_back(invocationPath.str().str());
   }
 // If the builder doesn't plan on installing it, we still need to get to the
 // runtime library somehow, so just build in the path to the temporary one.

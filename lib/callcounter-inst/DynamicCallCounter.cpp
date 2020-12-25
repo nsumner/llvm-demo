@@ -142,12 +142,14 @@ DynamicCallCounter::runOnModule(Module& m) {
     }
 
     // Count each internal function as it executes.
-    handleCalledFunction(*f, counter.getCallee());
+    handleCalledFunction(*f, counter);
 
     // Count each external function as it is called.
     for (auto& bb : *f) {
       for (auto& i : bb) {
-        handleInstruction(CallSite(&i), counter.getCallee());
+	if (CallBase *cb = dyn_cast<CallBase>(&i)) {
+          handleInstruction(*cb, counter);
+	}
       }
     }
   }
@@ -157,21 +159,16 @@ DynamicCallCounter::runOnModule(Module& m) {
 
 
 void
-DynamicCallCounter::handleCalledFunction(Function& f, Value* counter) {
+DynamicCallCounter::handleCalledFunction(Function& f, FunctionCallee counter) {
   IRBuilder<> builder(&*f.getEntryBlock().getFirstInsertionPt());
   builder.CreateCall(counter, builder.getInt64(ids[&f]));
 }
 
 
 void
-DynamicCallCounter::handleInstruction(CallSite cs, Value* counter) {
-  // Check whether the instruction is actually a call
-  if (!cs.getInstruction()) {
-    return;
-  }
-
+DynamicCallCounter::handleInstruction(CallBase& cb, FunctionCallee counter) {
   // Check whether the called function is directly invoked
-  auto called = dyn_cast<Function>(cs.getCalledValue()->stripPointerCasts());
+  auto called = dyn_cast<Function>(cb.getCalledOperand()->stripPointerCasts());
   if (!called) {
     return;
   }
@@ -184,6 +181,6 @@ DynamicCallCounter::handleInstruction(CallSite cs, Value* counter) {
   }
 
   // External functions are counted at their invocation sites.
-  IRBuilder<> builder(cs.getInstruction());
+  IRBuilder<> builder(&cb);
   builder.CreateCall(counter, builder.getInt64(ids[called]));
 }
