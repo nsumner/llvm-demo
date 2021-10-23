@@ -130,7 +130,7 @@ compile(Module& m, StringRef outputPath) {
   }
 
   string FeaturesStr;
-  TargetOptions options = llvm::codegen::InitTargetOptionsFromCodeGenFlags();
+  TargetOptions options = llvm::codegen::InitTargetOptionsFromCodeGenFlags(triple);
   unique_ptr<TargetMachine> machine(
       target->createTargetMachine(triple.getTriple(),
                                   codegen::getCPUStr(),
