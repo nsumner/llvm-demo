@@ -147,7 +147,7 @@ compile(Module& m, StringRef outputPath) {
 
   std::error_code errc;
   auto out =
-      std::make_unique<ToolOutputFile>(outputPath, errc, sys::fs::F_None);
+      std::make_unique<ToolOutputFile>(outputPath, errc, sys::fs::OF_None);
   if (!out) {
     report_fatal_error("Unable to create file:\n " + errc.message());
   }
@@ -247,7 +247,7 @@ generateBinary(Module& m, StringRef outputFilename) {
 static void
 saveModule(Module const& m, StringRef filename) {
   std::error_code errc;
-  raw_fd_ostream out(filename.data(), errc, sys::fs::F_None);
+  raw_fd_ostream out(filename.data(), errc, sys::fs::OF_None);
 
   if (errc) {
     report_fatal_error("error saving llvm module to '" + filename + "': \n"
