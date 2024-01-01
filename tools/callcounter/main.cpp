@@ -228,8 +228,8 @@ link(StringRef objectFile, StringRef outputFile) {
   string err;
   auto result = ExecuteAndWait(
       clang.get(),
-      llvm::makeArrayRef(charArgs),
-      llvm::NoneType::None,
+      charArgs,
+      std::nullopt,
       {},
       0,
       0,
