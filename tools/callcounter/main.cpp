@@ -119,15 +119,15 @@ compile(Module& m, StringRef outputPath) {
     report_fatal_error(Twine{"Unable to find target:\n " + err});
   }
 
-  CodeGenOpt::Level level = CodeGenOpt::Default;
+  CodeGenOptLevel level = CodeGenOptLevel::Default;
   switch (optLevel) {
     default:
       report_fatal_error("Invalid optimization level.\n");
     // No fall through
-    case '0': level = CodeGenOpt::None; break;
-    case '1': level = CodeGenOpt::Less; break;
-    case '2': level = CodeGenOpt::Default; break;
-    case '3': level = CodeGenOpt::Aggressive; break;
+    case '0': level = CodeGenOptLevel::None; break;
+    case '1': level = CodeGenOptLevel::Less; break;
+    case '2': level = CodeGenOptLevel::Default; break;
+    case '3': level = CodeGenOptLevel::Aggressive; break;
   }
 
   string FeaturesStr;
@@ -179,7 +179,7 @@ compile(Module& m, StringRef outputPath) {
     }
 
     // Ask the target to add backend passes as necessary.
-    if (machine->addPassesToEmitFile(pm, *os, nullptr, CGFT_ObjectFile)) {
+    if (machine->addPassesToEmitFile(pm, *os, nullptr, CodeGenFileType::ObjectFile)) {
       report_fatal_error("target does not support generation "
                          "of this file type!\n");
     }
