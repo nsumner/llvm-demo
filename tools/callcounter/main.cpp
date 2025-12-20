@@ -140,7 +140,7 @@ compile(Module& m, StringRef outputPath) {
   }
 
   unique_ptr<TargetMachine> machine(
-      target->createTargetMachine(triple.getTriple(),
+      target->createTargetMachine(triple,
                                   codegen::getCPUStr(),
                                   codegen::getFeaturesStr(),
                                   options,

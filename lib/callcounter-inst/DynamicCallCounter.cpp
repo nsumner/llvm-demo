@@ -71,7 +71,7 @@ createFunctionTable(Module& m, uint64_t numFunctions) {
 
   // Create the component types of the table
   auto* int64Ty    = Type::getInt64Ty(context);
-  auto* stringTy   = PointerType::get(Type::getInt8Ty(context), 0);
+  auto* stringTy   = PointerType::get(context, 0);
   Type* fieldTys[] = {stringTy, int64Ty};
   auto* structTy   = StructType::get(context, fieldTys, false);
   auto* tableTy    = ArrayType::get(structTy, numFunctions);
