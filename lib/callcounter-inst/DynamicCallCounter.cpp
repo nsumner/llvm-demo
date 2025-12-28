@@ -11,13 +11,6 @@ using namespace llvm;
 using callcounter::DynamicCallCounter;
 
 
-namespace callcounter {
-
-char DynamicCallCounter::ID = 0;
-
-}
-
-
 // Returns a map (Function* -> uint64_t).
 static DenseMap<Function*, uint64_t>
 computeFunctionIDs(llvm::ArrayRef<Function*> functions) {
@@ -97,10 +90,8 @@ createFunctionTable(Module& m, uint64_t numFunctions) {
 }
 
 
-// For an analysis pass, runOnModule should perform the actual analysis and
-// compute the results. The actual output, however, is produced separately.
-bool
-DynamicCallCounter::runOnModule(Module& m) {
+PreservedAnalyses
+DynamicCallCounter::run(Module& m, ModuleAnalysisManager& mam) {
   auto& context = m.getContext();
 
   // First identify the functions we wish to track
@@ -147,14 +138,14 @@ DynamicCallCounter::runOnModule(Module& m) {
     // Count each external function as it is called.
     for (auto& bb : *f) {
       for (auto& i : bb) {
-	if (CallBase *cb = dyn_cast<CallBase>(&i)) {
+        if (CallBase* cb = dyn_cast<CallBase>(&i)) {
           handleInstruction(*cb, counter);
-	}
+        }
       }
     }
   }
 
-  return true;
+  return PreservedAnalyses::none();
 }
 
 

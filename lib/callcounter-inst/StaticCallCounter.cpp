@@ -5,44 +5,35 @@
 
 #include "StaticCallCounter.h"
 
-// This program can be used by opt. After compilation, use:
-// opt -load buildpath/lib/callcounter-inst.so --callcounter -analyze bitcode.bc
-
 
 using namespace llvm;
+using callcounter::StaticCallCounts;
 using callcounter::StaticCallCounter;
 
 
 namespace callcounter {
 
-char StaticCallCounter::ID = 0;
+AnalysisKey StaticCallCounter::Key;
 
-RegisterPass<StaticCallCounter> X("callcounter",
-                                  "Print the static count of direct calls");
-
-}
-
-
-// For an analysis pass, runOnModule should perform the actual analysis and
-// compute the results. The actual output, however, is produced separately.
-bool
-StaticCallCounter::runOnModule(Module& m) {
-  for (auto& f : m) {
-    for (auto& bb : f) {
-      for (auto& i : bb) {
-	if (CallBase *cb = dyn_cast<CallBase>(&i)) {
-          handleInstruction(*cb);
-	}
-      }
-    }
-  }
-
-  return false;
 }
 
 
 void
-StaticCallCounter::handleInstruction(CallBase& cb) {
+StaticCallCounts::analyze(const Module& m) {
+  for (auto& f : m) {
+    for (auto& bb : f) {
+      for (auto& i : bb) {
+        if (const auto* cb = dyn_cast<const CallBase>(&i)) {
+          handleInstruction(*cb);
+        }
+      }
+    }
+  }
+}
+
+
+void
+StaticCallCounts::handleInstruction(const CallBase& cb) {
   // Check whether the called function is directly invoked
   auto called = dyn_cast<Function>(cb.getCalledOperand()->stripPointerCasts());
   if (!called) {
@@ -58,11 +49,8 @@ StaticCallCounter::handleInstruction(CallBase& cb) {
 }
 
 
-// Output for a pure analysis pass should happen in the print method.
-// It is called automatically after the analysis pass has finished collecting
-// its information.
 void
-StaticCallCounter::print(raw_ostream& out, Module const* /*m*/) const {
+StaticCallCounts::print(raw_ostream& out) const {
   out << "Function Counts\n"
       << "===============\n";
   for (auto& kvPair : counts) {
@@ -70,4 +58,12 @@ StaticCallCounter::print(raw_ostream& out, Module const* /*m*/) const {
     uint64_t count = kvPair.second;
     out << function->getName() << " : " << count << "\n";
   }
+}
+
+
+StaticCallCounts
+StaticCallCounter::run(const Module& m, ModuleAnalysisManager& mam) {
+  StaticCallCounts counts;
+  counts.analyze(m);
+  return counts;
 }

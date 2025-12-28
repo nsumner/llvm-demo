@@ -7,6 +7,7 @@
 #include "llvm/ADT/DenseMap.h"
 #include "llvm/IR/InstrTypes.h"
 #include "llvm/IR/Module.h"
+#include "llvm/IR/PassManager.h"
 #include "llvm/Pass.h"
 #include "llvm/Support/raw_ostream.h"
 
@@ -14,18 +15,25 @@
 namespace callcounter {
 
 
-struct StaticCallCounter : public llvm::ModulePass {
-  static char ID;
-
+struct StaticCallCounts {
   llvm::DenseMap<llvm::Function*, uint64_t> counts;
 
-  StaticCallCounter() : llvm::ModulePass(ID) {}
+  void analyze(const llvm::Module& m);
 
-  bool runOnModule(llvm::Module& m) override;
+  void print(llvm::raw_ostream& out) const;
 
-  void print(llvm::raw_ostream& out, llvm::Module const* m) const override;
+  void handleInstruction(const llvm::CallBase& cb);
+};
 
-  void handleInstruction(llvm::CallBase& cb);
+
+struct StaticCallCounter : public llvm::AnalysisInfoMixin<StaticCallCounter> {
+  using Result = StaticCallCounts;
+
+  StaticCallCounter() {}
+
+  StaticCallCounts run(const llvm::Module& m, llvm::ModuleAnalysisManager& mam);
+
+  static llvm::AnalysisKey Key;
 };
 
 
